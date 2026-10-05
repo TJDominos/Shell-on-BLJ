@@ -85,8 +85,8 @@ export function GameInfoModal() {
             </button>
           </div>
 
-          {/* Scrollable Content */}
-          <div className="overflow-y-auto p-6 space-y-6 flex-1 custom-scrollbar">
+          {/* Scrollable Content - No scrollbar */}
+          <div className="overflow-y-auto p-6 space-y-6 flex-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             {/* Top Hero Section: Cover Thumbnail, Game Name, Rating, Share Button */}
             <div className="flex flex-col sm:flex-row gap-5 items-start">
               {/* Game Cover Thumbnail */}

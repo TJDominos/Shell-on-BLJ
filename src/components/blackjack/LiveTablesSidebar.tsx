@@ -171,7 +171,7 @@ export function LiveTablesSidebar({
         <div 
           ref={scrollRef}
           onScroll={handleScroll}
-          className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2.5 pb-16"
+          className="flex-1 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden p-3 space-y-2.5 pb-16"
         >
           {visibleTables.length === 0 ? (
             <div className="text-sm text-white/30 text-center py-12 italic">No {activeTab} tables found.</div>

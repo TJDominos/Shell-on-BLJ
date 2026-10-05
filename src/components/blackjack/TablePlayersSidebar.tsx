@@ -147,7 +147,7 @@ export function TablePlayersSidebar({ isOpen, onClose, table, gameRecords }: Tab
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-[14px] custom-scrollbar flex flex-col gap-4">
+        <div className="flex-1 overflow-y-auto p-[14px] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden flex flex-col gap-4">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}

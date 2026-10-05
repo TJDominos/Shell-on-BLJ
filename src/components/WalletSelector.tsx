@@ -144,7 +144,7 @@ export function WalletSelector({ isOpen, onClose, depositAmount, currency, onSel
               </button>
             </div>
             
-            <div className="p-4 sm:p-6 overflow-y-auto w-full">
+            <div className="p-4 sm:p-6 overflow-y-auto w-full [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
               {step === 'SELECT_WALLET' && (
                 <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                   <p className="text-sm text-slate-500 mb-4 px-2">

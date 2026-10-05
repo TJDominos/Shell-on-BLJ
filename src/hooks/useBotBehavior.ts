@@ -12,7 +12,7 @@ export function useBotBehavior(
       const seat = table.seats[activeSeat];
       if (seat?.userId?.startsWith('bot_') && seat.hand?.status === 'playing') {
         const isInitialDeal = seat.hand?.cards?.length === 2;
-        const delayMs = isInitialDeal ? Math.max(1500, table.seats.length * 300 + 1000) : 1500;
+        const delayMs = isInitialDeal ? 600 : 500;
         
         const timer = setTimeout(() => {
           if (seat.hand!.score < 17) {

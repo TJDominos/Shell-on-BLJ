@@ -146,6 +146,8 @@ export function RegularTableView({ onNavigate, onToggleSidebar, isSidebarOpen }:
      isResolvingRef.current = false;
   }
 
+  const isEmbedded = typeof window !== 'undefined' && (window.location.search.includes('embed=true') || window !== window.parent);
+
   useEffect(() => {
     if (table && isFirstLoadRef.current) {
         setBetAmountStr((table.settings.minBet || 50).toString());
@@ -440,15 +442,8 @@ export function RegularTableView({ onNavigate, onToggleSidebar, isSidebarOpen }:
                });
            }
        } else {
-           const requiredMinBal = table.settings.minBuyIn * (mySeatsCount + 1);
-           if (userBal >= requiredMinBal) {
-             joinTable(table.id, seatIndex, currencyToUse);
-           } else {
-             setConfirmAction({
-               message: `Do you want to lock ${table.settings.minBuyIn} ${currencyToUse} to sit at this seat?`,
-               onConfirm: () => joinTable(table.id, seatIndex, currencyToUse)
-             });
-           }
+           // Instantly sit down on normal tables without confirm modal
+           await joinTable(table.id, seatIndex, currencyToUse);
        }
     } else if (seat.userId === currentUser.id) {
        await leaveTable(table.id, seatIndex);
@@ -481,14 +476,20 @@ export function RegularTableView({ onNavigate, onToggleSidebar, isSidebarOpen }:
   const handleStartGame = async () => {
     soundManager.playChip();
     setRecentWinAmount(null);
+
+    // Require player to click a seat to sit down first
     if (mySeats.length === 0) {
       setShakeSeats(true);
-      setTimeout(() => setShakeSeats(false), 500);
+      setTimeout(() => setShakeSeats(false), 600);
       return;
     }
+
     const amountStr = betAmountStr.replace(/,/g, '');
     let amount = parseInt(amountStr || '0', 10);
-    if (isNaN(amount)) amount = 0;
+    if (isNaN(amount) || amount < (table.settings.minBet || 10)) {
+      amount = table.settings.minBet || 50;
+      setBetAmountStr(amount.toString());
+    }
 
     let pairAmt = parseInt(pairBetStr.replace(/,/g, '') || '0', 10);
     if (isNaN(pairAmt) || !sideBetsEnabled) pairAmt = 0;
@@ -496,27 +497,20 @@ export function RegularTableView({ onNavigate, onToggleSidebar, isSidebarOpen }:
     let plus3Amt = parseInt(plus3BetStr.replace(/,/g, '') || '0', 10);
     if (isNaN(plus3Amt) || !sideBetsEnabled) plus3Amt = 0;
 
-    const singleBet = amount + pairAmt + plus3Amt;
-    const totalBet = singleBet * mySeats.length;
-    const canAfford = myUserBal >= totalBet;
-
-    if (amount >= table.settings.minBet && amount <= table.settings.maxBet && canAfford) {
-      if (isPlacingBetRef.current) return;
-      try {
-        isPlacingBetRef.current = true;
-        await Promise.all(
-          mySeats.map(seatIndex => 
-            placeBet(table.id, seatIndex, amount, { pair: pairAmt, twentyOnePlusThree: plus3Amt })
-          )
-        );
-      } catch (err: any) {
-        // If placeBet fails (e.g., game already started), ignore silently or alert
-        console.warn("Could not place bet:", err);
-      } finally {
-        setTimeout(() => { isPlacingBetRef.current = false; }, 1000);
+    if (isPlacingBetRef.current) return;
+    try {
+      isPlacingBetRef.current = true;
+      // 1. Place bet on player's chosen seat(s)
+      for (const seatIndex of mySeats) {
+        await placeBet(table.id, seatIndex, amount, { pair: pairAmt, twentyOnePlusThree: plus3Amt });
       }
-    } else {
-      alert(`Invalid bet or insufficient locked balance (Min: ${table.settings.minBet}, Max: ${table.settings.maxBet}, Total Cost: ${totalBet}, Locked: ${myUserBal})`);
+
+      // 2. Start game immediately
+      await startGame(table.id);
+    } catch (err: any) {
+      console.warn("Could not start game:", err);
+    } finally {
+      setTimeout(() => { isPlacingBetRef.current = false; }, 300);
     }
   };
 
@@ -1509,7 +1503,7 @@ export function RegularTableView({ onNavigate, onToggleSidebar, isSidebarOpen }:
        </div>
 
            {/* Bottom Bar: RTP */}
-           <div className="w-full max-w-[1024px] flex justify-center text-[10px] sm:text-[11px] font-bold tracking-wide pt-1 pb-[calc(env(safe-area-inset-bottom)+0.25rem)] z-20 relative bg-black shrink-0 border-t border-white/10">
+           <div className={cn("w-full max-w-[1024px] flex justify-center text-[10px] sm:text-[11px] font-bold tracking-wide pt-1 pb-[calc(env(safe-area-inset-bottom)+0.25rem)] z-20 relative bg-black shrink-0 border-t border-white/10", isEmbedded && "hidden")}>
              <div className="flex items-center gap-4 sm:gap-6 px-4 pb-0.5">
                <button onClick={() => setShowRules(true)} className="hover:text-white text-[#ffc53d] transition-colors uppercase cursor-pointer border-b border-[#ffc53d]/50 hover:border-[#ffc53d] pb-0.5 flex items-center gap-1.5 px-2 bg-[#ffc53d]/10 rounded-sm">
                   <span className="drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">RTP {calculateBaseRTP(table.settings.winningRule)}</span>

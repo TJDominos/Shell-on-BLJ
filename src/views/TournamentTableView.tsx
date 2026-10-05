@@ -127,6 +127,8 @@ export function TournamentTableView({ onNavigate, onToggleSidebar, isSidebarOpen
      isResolvingRef.current = false;
   }
 
+  const isEmbedded = typeof window !== 'undefined' && (window.location.search.includes('embed=true') || window !== window.parent);
+
   useEffect(() => {
     if (table && isFirstLoadRef.current) {
         setBetAmountStr((table.settings.tournament?.minBetChips || 50).toString());
@@ -651,7 +653,7 @@ export function TournamentTableView({ onNavigate, onToggleSidebar, isSidebarOpen
               </button>
             </div>
             
-            <div className="p-4 overflow-y-auto max-h-[60vh]">
+            <div className="p-4 overflow-y-auto max-h-[60vh] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                <div className="rounded-xl border border-white/10 bg-black/20 overflow-hidden">
                  <table className="w-full text-left text-xs">
                    <thead className="bg-black/40 text-white/50">
@@ -1461,7 +1463,7 @@ export function TournamentTableView({ onNavigate, onToggleSidebar, isSidebarOpen
        </div>
 
            {/* Bottom Bar: Prizes and Rules */}
-           <div className="w-full max-w-[1024px] flex justify-center text-[10px] sm:text-[11px] font-bold tracking-wide pt-1 pb-[calc(env(safe-area-inset-bottom)+0.25rem)] z-20 relative bg-black shrink-0 border-t border-white/10">
+           <div className={cn("w-full max-w-[1024px] flex justify-center text-[10px] sm:text-[11px] font-bold tracking-wide pt-1 pb-[calc(env(safe-area-inset-bottom)+0.25rem)] z-20 relative bg-black shrink-0 border-t border-white/10", isEmbedded && "hidden")}>
              <div className="flex items-center gap-4 sm:gap-6 px-4 pb-0.5">
                <button onClick={() => setShowRules(true)} className="hover:text-white text-[#ffc53d] transition-colors uppercase cursor-pointer border-b border-[#ffc53d]/50 hover:border-[#ffc53d] pb-0.5 flex items-center gap-1.5 px-2 bg-[#ffc53d]/10 rounded-sm">
                   <span className="drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">Prizes and Rules</span>

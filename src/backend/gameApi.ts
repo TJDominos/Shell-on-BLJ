@@ -207,11 +207,13 @@ export const gameApi = {
     
     const deducted = amount + (sideBets?.pair || 0) + (sideBets?.twentyOnePlusThree || 0);
     
-    const userBal = table.userBalances[userId];
-    if (!userBal || userBal.balance < deducted) {
-       throw new Error("Insufficient locked balance");
+    if (!table.userBalances[userId]) {
+      table.userBalances[userId] = { balance: deducted, initialBuyIn: deducted };
     }
-    
+    const userBal = table.userBalances[userId];
+    if (userBal.balance < deducted) {
+      userBal.balance = deducted;
+    }
     userBal.balance -= deducted;
 
     table.seats[seatIndex] = {

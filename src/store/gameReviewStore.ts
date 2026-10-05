@@ -26,6 +26,11 @@ export interface CreatorProfile {
   joinedDate: string;
 }
 
+export interface GameControlItem {
+  key: string;
+  action: string;
+}
+
 export interface GameMetadata {
   id: string;
   name: string;
@@ -38,6 +43,7 @@ export interface GameMetadata {
   language: string;
   creator: CreatorProfile;
   description: string;
+  controls: GameControlItem[];
 }
 
 export function formatRating(rating: number): string {
@@ -45,6 +51,23 @@ export function formatRating(rating: number): string {
   const rounded = Math.round(rating * 10) / 10;
   const str = rounded.toFixed(1);
   return str.endsWith('.0') ? str.slice(0, -2) : str;
+}
+
+const STORAGE_KEY_REVIEWS = 'randseed_game_reviews_v1';
+const STORAGE_KEY_USER_SHAS = 'randseed_reviewed_shas_v1';
+const STORAGE_KEY_CONTROLS = 'randseed_custom_game_controls_v1';
+
+function loadPersistedControls(): GameControlItem[] | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_CONTROLS);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (e) {
+    console.error(e);
+  }
+  return null;
 }
 
 const DEFAULT_METADATA: GameMetadata = {
@@ -57,6 +80,14 @@ const DEFAULT_METADATA: GameMetadata = {
   ageRating: '18+ / Mature',
   deviceSupport: 'Desktop, Tablet, Mobile (Responsive Canvas/HTML5)',
   language: 'English, 简体中文, Español, 日本語',
+  controls: loadPersistedControls() || [
+    { key: 'Space / Enter', action: 'Deal / Hit' },
+    { key: 'S', action: 'Stand' },
+    { key: 'D', action: 'Double Down' },
+    { key: 'P', action: 'Split Pairs' },
+    { key: '← / → Arrow', action: 'Adjust Bet' },
+    { key: '1 - 5', action: 'Quick Select Chips' }
+  ],
   creator: {
     name: 'Randseed Vanguard',
     handle: '@randseed_official',
@@ -180,10 +211,8 @@ interface GameReviewStoreState {
   likeReview: (reviewId: string) => void;
   getAverageRating: () => number;
   getFormattedRating: () => string;
+  updateControls: (controls: GameControlItem[]) => void;
 }
-
-const STORAGE_KEY_REVIEWS = 'randseed_game_reviews_v1';
-const STORAGE_KEY_USER_SHAS = 'randseed_reviewed_shas_v1';
 
 function loadPersistedReviews(): GameReview[] {
   try {
@@ -355,5 +384,19 @@ export const useGameReviewStore = create<GameReviewStoreState>((set, get) => ({
 
   getFormattedRating: () => {
     return formatRating(get().getAverageRating());
+  },
+
+  updateControls: (controls) => {
+    try {
+      localStorage.setItem(STORAGE_KEY_CONTROLS, JSON.stringify(controls));
+    } catch (e) {
+      console.error(e);
+    }
+    set((state) => ({
+      metadata: {
+        ...state.metadata,
+        controls
+      }
+    }));
   }
 }));

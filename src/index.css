@@ -26,6 +26,62 @@ body {
   overflow-y: auto;
 }
 
+/* ========================================================
+   GLOBAL SCROLLBAR REMOVAL: Remove all up/down & horizontal scrollbars
+   ======================================================== */
+*,
+*::before,
+*::after,
+html,
+body,
+#root {
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE 10+ and Edge */
+}
+
+/* Chrome, Safari, Edge, Opera WebKit pseudo-elements */
+*::-webkit-scrollbar,
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+div::-webkit-scrollbar,
+main::-webkit-scrollbar,
+aside::-webkit-scrollbar,
+section::-webkit-scrollbar,
+ul::-webkit-scrollbar,
+ol::-webkit-scrollbar,
+form::-webkit-scrollbar {
+  display: none !important;
+  width: 0px !important;
+  height: 0px !important;
+  background: transparent !important;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-corner {
+  display: none !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Utility classes to guarantee no scrollbar is ever rendered */
+.no-scrollbar,
+.custom-scrollbar,
+.hide-scrollbar,
+.hide-scrollbar-custom {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.no-scrollbar::-webkit-scrollbar,
+.custom-scrollbar::-webkit-scrollbar,
+.hide-scrollbar::-webkit-scrollbar,
+.hide-scrollbar-custom::-webkit-scrollbar {
+  display: none !important;
+  width: 0px !important;
+  height: 0px !important;
+}
+
 .text-gold {
   color: var(--color-accent);
 }

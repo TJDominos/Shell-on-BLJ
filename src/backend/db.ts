@@ -47,5 +47,5 @@ export const tablesDb: Record<string, Table> = {
 
 export const userBalances: Record<string, number> = {};
 
-// Delay to simulate IC Canister consensus
-export const delay = (ms = 500) => new Promise(resolve => setTimeout(resolve, ms));
+// Delay to simulate IC Canister consensus (optimized for crisp responsiveness)
+export const delay = (ms = 50) => new Promise(resolve => setTimeout(resolve, Math.min(ms, 50)));

@@ -10,13 +10,28 @@ export interface PlatformPlayerHeaderProps {
   onSignIn: () => void;
   signInPending?: boolean;
   defaultSidebarOpen?: boolean;
+  sidebarOpen?: boolean;
+  onToggleSidebar?: () => void;
   onSignOut: () => void;
   onOpenNotifications: () => void;
   onToggleMute: () => void;
 }
 
-export function PlatformPlayerHeader({ state, onNavigateHome, onSignIn, signInPending = false, defaultSidebarOpen = false, onSignOut, onOpenNotifications }: PlatformPlayerHeaderProps): ReactElement {
-  const [sidebarOpen, setSidebarOpen] = useState(defaultSidebarOpen);
+export function PlatformPlayerHeader({ 
+  state, 
+  onNavigateHome, 
+  onSignIn, 
+  signInPending = false, 
+  defaultSidebarOpen = false, 
+  sidebarOpen: controlledSidebarOpen,
+  onToggleSidebar,
+  onSignOut, 
+  onOpenNotifications 
+}: PlatformPlayerHeaderProps): ReactElement {
+  const [internalSidebarOpen, setInternalSidebarOpen] = useState(defaultSidebarOpen);
+  const isSidebarOpen = controlledSidebarOpen !== undefined ? controlledSidebarOpen : internalSidebarOpen;
+  const toggleSidebar = onToggleSidebar || (() => setInternalSidebarOpen(v => !v));
+
   const [search, setSearch] = useState("");
   const [avatarFailed, setAvatarFailed] = useState(false);
   const accountRef = useRef<HTMLDetailsElement>(null);
@@ -37,7 +52,11 @@ export function PlatformPlayerHeader({ state, onNavigateHome, onSignIn, signInPe
         accountRef.current.removeAttribute("open");
         accountRef.current.querySelector("summary")?.focus();
       }
-      setSidebarOpen(false);
+      if (isSidebarOpen && onToggleSidebar) {
+        onToggleSidebar();
+      } else {
+        setInternalSidebarOpen(false);
+      }
     };
     document.addEventListener("pointerdown", dismissAccount);
     document.addEventListener("keydown", dismissPanels);
@@ -45,17 +64,25 @@ export function PlatformPlayerHeader({ state, onNavigateHome, onSignIn, signInPe
       document.removeEventListener("pointerdown", dismissAccount);
       document.removeEventListener("keydown", dismissPanels);
     };
-  }, []);
+  }, [isSidebarOpen, onToggleSidebar]);
 
   return (
     <>
       <header className="platform-player-header">
         <div className="platform-player-header__inner">
           <div className="platform-player-header__brand">
-            <button className="btn btn--outline btn--icon-only platform-player-header__icon-button platform-player-header__category-toggle" type="button" aria-label={sidebarOpen ? "Collapse game categories" : "Expand game categories"} title={sidebarOpen ? "Collapse game categories" : "Expand game categories"} aria-expanded={sidebarOpen} aria-controls={sidebarId} onClick={() => setSidebarOpen(value => !value)}>
+            <button 
+              className="btn btn--outline btn--icon-only platform-player-header__icon-button platform-player-header__category-toggle" 
+              type="button" 
+              aria-label={isSidebarOpen ? "Collapse game categories" : "Expand game categories"} 
+              title={isSidebarOpen ? "Collapse game categories" : "Expand game categories"} 
+              aria-expanded={isSidebarOpen} 
+              aria-controls={sidebarId} 
+              onClick={toggleSidebar}
+            >
               <span className="platform-player-header__category-symbol" aria-hidden="true">
                 <Menu size={28} />
-                <Triangle className="platform-player-header__category-direction" size={12} />
+                <Triangle className={`platform-player-header__category-direction transition-transform duration-200 ${isSidebarOpen ? 'rotate-180' : ''}`} size={12} />
               </span>
             </button>
             <a className="platform-player-header__logo" href="/home" aria-label="Randseed game home" onClick={event => { event.preventDefault(); onNavigateHome(); }}>
@@ -99,7 +126,6 @@ export function PlatformPlayerHeader({ state, onNavigateHome, onSignIn, signInPe
           </div>
         </div>
       </header>
-      <aside id={sidebarId} className="platform-player-sidebar" aria-label="Game categories" hidden={!sidebarOpen} />
     </>
   );
 }

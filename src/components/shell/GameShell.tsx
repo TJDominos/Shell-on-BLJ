@@ -14,6 +14,7 @@ import { GameControlBar } from './GameControlBar';
 import { GameInfoSection } from './GameInfoSection';
 import { GameReviewModal } from './GameReviewModal';
 import { CreatorProfileModal } from './CreatorProfileModal';
+import { PlatformSidebar } from './PlatformSidebar';
 
 export function GameShell() {
   const { id } = useParams<{ id: string }>();
@@ -25,6 +26,7 @@ export function GameShell() {
   const setPlayMode = useUIStore((s) => s.setPlayMode);
 
   // Shell State
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [showRulesModal, setShowRulesModal] = useState(false);
@@ -160,52 +162,116 @@ export function GameShell() {
         onNavigateHome={handleSafeExit}
         onSignIn={() => login('Player')}
         signInPending={false}
+        sidebarOpen={sidebarOpen}
+        onToggleSidebar={() => setSidebarOpen(prev => !prev)}
         onSignOut={() => useGameStore.setState({ currentUser: null })}
         onOpenNotifications={() => setShowNotifications(true)}
         onToggleMute={() => setIsMuted(prev => !prev)}
       />
 
-      {/* Main Page Layout: Game Frame Container (1280px) + Game Info Section below */}
-      <main className="w-full max-w-[1280px] mx-auto px-2 sm:px-4 md:px-6 py-2 sm:py-4 flex flex-col gap-4 sm:gap-6 flex-1">
-        {/* Game Window Card: 1280px width, 720px game height */}
-        <div 
-          ref={gameCardRef}
-          className={`w-full max-w-[1280px] mx-auto bg-black rounded-2xl overflow-hidden border border-neutral-800 shadow-2xl flex flex-col ${
-            isFullscreen ? 'fixed inset-0 z-[300] rounded-none border-0 max-w-none' : 'relative'
+      {/* Main Container: Handles PC content push and mobile overlay */}
+      <div className="w-full flex-1 flex relative overflow-x-hidden">
+        {/* Desktop Sidebar: pushes main content to the right when expanded */}
+        <aside 
+          className={`hidden md:block shrink-0 transition-all duration-300 ease-in-out bg-[#0c0f16] border-r border-neutral-800/80 overflow-hidden ${
+            sidebarOpen ? 'w-[260px]' : 'w-0 border-r-0'
           }`}
+          aria-label="Game categories"
         >
-          {/* Game Viewport / Iframe: 720px natural height matching the game table */}
+          <div className="w-[260px] h-[calc(100vh-60px)] sticky top-[60px] overflow-y-auto p-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            <PlatformSidebar
+              isOpen={sidebarOpen}
+              onClose={() => setSidebarOpen(false)}
+              onOpenFairness={() => setShowFairnessModal(true)}
+              onSelectTable={(id) => navigate(`/play/${id}`)}
+              activeTableId={tableId}
+              isMobileDrawer={false}
+            />
+          </div>
+        </aside>
+
+        {/* Mobile Sidebar Overlay: covers the main page content on mobile devices */}
+        {sidebarOpen && (
+          <div className="md:hidden fixed inset-0 z-[200] flex">
+            {/* Backdrop overlay */}
+            <div 
+              className="fixed inset-0 bg-black/75 backdrop-blur-xs transition-opacity"
+              onClick={() => setSidebarOpen(false)}
+            />
+            {/* Drawer covering main content */}
+            <aside 
+              className="relative z-10 w-[280px] max-w-[85vw] h-full bg-[#0c0f16] border-r border-neutral-800 p-4 shadow-2xl overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+              aria-label="Game categories"
+            >
+              <PlatformSidebar
+                isOpen={sidebarOpen}
+                onClose={() => setSidebarOpen(false)}
+                onOpenFairness={() => setShowFairnessModal(true)}
+                onSelectTable={(id) => navigate(`/play/${id}`)}
+                activeTableId={tableId}
+                isMobileDrawer={true}
+              />
+            </aside>
+          </div>
+        )}
+
+        {/* Main Page Layout: 
+            On Mobile: Edge-to-edge (p-0), game viewport fills 100dvh-60px so Deal panel docks at bottom of first screen (without exposing game panel).
+            On PC: Game Window Card stretches so the bottom game panel (GameControlBar) docks at the bottom of the first screen!
+        */}
+        <main className="w-full max-w-[1280px] mx-auto p-0 md:px-6 md:py-2 flex flex-col gap-0 md:gap-4 flex-1 min-w-0 transition-all duration-300 ease-in-out">
+          {/* Game Window Card */}
           <div 
-            className={`w-full relative bg-[#0f121a] overflow-hidden ${
-              isFullscreen ? 'flex-1 h-full' : 'h-[720px]'
+            ref={gameCardRef}
+            className={`w-full max-w-[1280px] mx-auto bg-black flex flex-col ${
+              isFullscreen 
+                ? 'fixed inset-0 z-[300] rounded-none border-0 max-w-none h-screen' 
+                : 'relative rounded-none border-0 md:rounded-2xl md:border md:border-neutral-800 shadow-2xl md:h-[calc(100vh-76px)] shrink-0 overflow-hidden'
             }`}
           >
-            <iframe
-              ref={iframeRef}
-              src={`/t/${tableId}?embed=true`}
-              title="Game Frame"
-              className="w-full h-full border-0 absolute inset-0 overflow-hidden block"
-              scrolling="no"
-              style={{ overflow: 'hidden' }}
-              allow="autoplay; fullscreen"
+            {/* Game Viewport / Iframe: 
+                On Mobile: h-[calc(100dvh-60px)] so Deal panel reaches the bottom of the mobile screen.
+                On PC: flex-1 min-h-0 so the GameControlBar below docks at the bottom of the first screen!
+            */}
+            <div 
+              className={`w-full relative bg-[#0f121a] overflow-hidden ${
+                isFullscreen 
+                  ? 'flex-1 h-full min-h-0' 
+                  : 'h-[calc(100dvh-60px)] md:h-auto md:flex-1 md:min-h-0'
+              }`}
+            >
+              <iframe
+                ref={iframeRef}
+                src={`/t/${tableId}?embed=true`}
+                title="Game Frame"
+                className="w-full h-full border-0 absolute inset-0 overflow-hidden block"
+                scrolling="no"
+                style={{ overflow: 'hidden' }}
+                allow="autoplay; fullscreen"
+              />
+            </div>
+
+            {/* Game Control Bar: Docked directly underneath the game viewport!
+                On Mobile: sits below the 100dvh fold (user does not need to see it on first screen).
+                On PC: sits right at the bottom edge of the first screen!
+            */}
+            <GameControlBar
+              isMuted={isMuted}
+              onToggleMute={() => setIsMuted(prev => !prev)}
+              isFullscreen={isFullscreen}
+              onToggleFullscreen={toggleFullscreen}
+              onRefreshGame={handleRefreshGame}
+              onOpenFairness={() => setShowFairnessModal(true)}
+              className="shrink-0"
             />
           </div>
 
-          {/* Game Control Bar: Docked directly underneath the game viewport, ZERO overlap with mobile play panel! */}
-          <GameControlBar
-            isMuted={isMuted}
-            onToggleMute={() => setIsMuted(prev => !prev)}
-            isFullscreen={isFullscreen}
-            onToggleFullscreen={toggleFullscreen}
-            onRefreshGame={handleRefreshGame}
-            onExitGame={handleSafeExit}
-            onOpenFairness={() => setShowFairnessModal(true)}
-          />
-        </div>
-
-        {/* Game Information Section: Directly displayed below the game! */}
-        <GameInfoSection />
-      </main>
+          {/* Game Information Section: Directly displayed below the game! */}
+          <div className="px-3 sm:px-4 md:px-0 py-4 md:py-2">
+            <GameInfoSection />
+          </div>
+        </main>
+      </div>
 
       {/* Universal Game Review Modal */}
       <GameReviewModal />

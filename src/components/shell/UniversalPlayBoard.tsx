@@ -128,8 +128,8 @@ export function UniversalPlayBoard({ isOpen, onClose, tableId }: UniversalPlayBo
               </button>
             </div>
 
-            {/* Content Body */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+            {/* Content Body - No scrollbar */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
               {activeTab === 'online' ? (
                 <div className="space-y-3">
                   <div className="text-xs font-semibold text-neutral-400 uppercase tracking-wider flex items-center justify-between">

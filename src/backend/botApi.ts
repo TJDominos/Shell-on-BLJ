@@ -7,6 +7,18 @@ export const botApi = {
   arrangeBots(table: Table) {
     if (table.settings.mode === 'tournament') return;
 
+    // Do NOT spawn bots on system tables - keep system tables pure, snappy solo play against the dealer
+    if (table.houseId === 'system') {
+      table.seats.forEach(s => {
+        if (s.userId && s.userId.startsWith('bot_')) {
+          s.userId = null;
+          s.isReady = false;
+          s.hand = null;
+        }
+      });
+      return;
+    }
+
     const realUserIndices: number[] = [];
     const currentBotIndices: number[] = [];
 
@@ -87,6 +99,7 @@ export const botApi = {
 
   // Called when the real player clicks Deal to start a round, so companion bots participate
   prepareBotsForDeal(table: Table) {
+    if (table.houseId === 'system') return;
     table.seats.forEach(s => {
       if (s.userId && s.userId.startsWith('bot_')) {
         s.isReady = true;

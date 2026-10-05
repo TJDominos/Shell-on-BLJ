@@ -5,6 +5,7 @@ import { useUIStore, selectPlayMode } from '../../store/uiStore';
 import { PlatformPlayerHeader } from '../PlatformPlayerHeader';
 import type { RuntimeState } from '../../player-runtime/runtimeProtocol';
 import { CurrencyIcon } from '../CurrencyIcon';
+import { PlatformSidebar } from './PlatformSidebar';
 import { 
   Play, 
   Users, 
@@ -23,6 +24,7 @@ export function PlatformLobby() {
   const { tables, currentUser, login } = useGameStore();
   const playMode = useUIStore(selectPlayMode);
   const setPlayMode = useUIStore((s) => s.setPlayMode);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'classic' | 'tournament'>('all');
 
   const activeTablesList = Object.values(tables).filter(t => t.status !== 'closed' && t.status !== 'closing' && t.settings.isPublic);
@@ -56,13 +58,58 @@ export function PlatformLobby() {
         onNavigateHome={() => navigate('/')}
         onSignIn={() => login('Player')}
         signInPending={false}
+        sidebarOpen={sidebarOpen}
+        onToggleSidebar={() => setSidebarOpen(prev => !prev)}
         onSignOut={() => useGameStore.setState({ currentUser: null })}
         onOpenNotifications={() => {}}
         onToggleMute={() => {}}
       />
 
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
-        {/* Hero Featured Game Banner */}
+      <div className="w-full flex-1 flex relative overflow-x-hidden">
+        {/* Desktop Sidebar: pushes main content to the right when open */}
+        <aside 
+          className={`hidden md:block shrink-0 transition-all duration-300 ease-in-out bg-[#0c0f16] border-r border-neutral-800/80 overflow-hidden ${
+            sidebarOpen ? 'w-[260px]' : 'w-0 border-r-0'
+          }`}
+          aria-label="Game categories"
+        >
+          <div className="w-[260px] h-[calc(100vh-60px)] sticky top-[60px] overflow-y-auto p-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            <PlatformSidebar
+              isOpen={sidebarOpen}
+              onClose={() => setSidebarOpen(false)}
+              onSelectTable={(id) => navigate(`/play/${id}`)}
+              activeTableId=""
+              isMobileDrawer={false}
+            />
+          </div>
+        </aside>
+
+        {/* Mobile Sidebar Overlay: covers the main page content on mobile */}
+        {sidebarOpen && (
+          <div className="md:hidden fixed inset-0 z-[200] flex">
+            {/* Backdrop overlay */}
+            <div 
+              className="fixed inset-0 bg-black/75 backdrop-blur-xs transition-opacity"
+              onClick={() => setSidebarOpen(false)}
+            />
+            {/* Drawer covering main content */}
+            <aside 
+              className="relative z-10 w-[280px] max-w-[85vw] h-full bg-[#0c0f16] border-r border-neutral-800 p-4 shadow-2xl overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+              aria-label="Game categories"
+            >
+              <PlatformSidebar
+                isOpen={sidebarOpen}
+                onClose={() => setSidebarOpen(false)}
+                onSelectTable={(id) => navigate(`/play/${id}`)}
+                activeTableId=""
+                isMobileDrawer={true}
+              />
+            </aside>
+          </div>
+        )}
+
+        <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6 min-w-0 transition-all duration-300 ease-in-out">
+          {/* Hero Featured Game Banner */}
         <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-r from-[#1a1208] via-[#20150b] to-[#121622] p-6 sm:p-10 shadow-2xl">
           <div className="absolute right-0 top-0 bottom-0 w-1/2 opacity-20 pointer-events-none bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-amber-500 via-yellow-600 to-transparent" />
           
@@ -211,6 +258,7 @@ export function PlatformLobby() {
           })}
         </div>
       </main>
+      </div>
     </div>
   );
 }
