@@ -101,15 +101,15 @@ export function GameInfoModal() {
 
               {/* Game Info Summary */}
               <div className="flex-1 space-y-2.5 w-full">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight break-words min-w-0">
                     {metadata.name}
                   </h1>
 
                   {/* Share Button */}
                   <button
                     onClick={() => setShowShareModal(true)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-800/90 hover:bg-neutral-700/90 border border-neutral-700 text-xs font-semibold text-neutral-200 hover:text-white transition-all shadow active:scale-95 shrink-0 self-start sm:self-auto cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-800/90 hover:bg-neutral-700/90 border border-neutral-700 text-xs font-semibold text-neutral-200 hover:text-white transition-all shadow active:scale-95 shrink-0 self-start cursor-pointer"
                     title="Share this game"
                   >
                     <Share2 className="w-3.5 h-3.5 text-[#B49CDF]" />

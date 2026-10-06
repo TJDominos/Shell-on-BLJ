@@ -55,10 +55,10 @@ export function GameInfoSection() {
   return (
     <section className="w-full bg-[#121520] border border-neutral-800 rounded-2xl p-4 sm:p-6 md:p-8 space-y-6 shadow-xl text-neutral-100">
       {/* Top Header: Cover Thumbnail, Game Name, Rating, Share Button */}
-      <div className="flex flex-col sm:flex-row gap-5 items-start justify-between border-b border-neutral-800/80 pb-6">
-        <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 items-start flex-1 min-w-0">
+      <div className="flex flex-col lg:flex-row gap-5 items-start justify-between border-b border-neutral-800/80 pb-6">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 items-start flex-1 min-w-0 w-full">
           {/* Game Cover Thumbnail */}
-          <div className="relative group shrink-0 w-24 h-24 sm:w-32 sm:h-32 rounded-2xl overflow-hidden shadow-2xl border-2 border-neutral-700 bg-neutral-900">
+          <div className="relative group shrink-0 w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-2xl overflow-hidden shadow-2xl border-2 border-neutral-700 bg-neutral-900">
             <img
               src={metadata.coverImage}
               alt={metadata.name}
@@ -68,12 +68,12 @@ export function GameInfoSection() {
           </div>
 
           {/* Title & Metadata */}
-          <div className="flex-1 space-y-2.5 min-w-0">
+          <div className="flex-1 space-y-2.5 min-w-0 w-full">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight break-words">
                 {metadata.name}
               </h1>
-              <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-mono font-semibold border border-emerald-500/30">
+              <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-mono font-semibold border border-emerald-500/30 shrink-0">
                 Official
               </span>
             </div>
@@ -130,7 +130,7 @@ export function GameInfoSection() {
         </div>
 
         {/* Action Buttons: Support / Tip Creator + Share Game */}
-        <div className="flex items-center gap-2.5 shrink-0 self-start sm:self-auto flex-wrap">
+        <div className="flex items-center gap-2.5 shrink-0 w-full lg:w-auto justify-start lg:justify-end flex-wrap pt-3 lg:pt-0 border-t lg:border-t-0 border-neutral-800/60">
           {/* Standalone Support / Tip Creator Button */}
           <GameTipButton variant="info-section" />
 
@@ -147,7 +147,7 @@ export function GameInfoSection() {
       </div>
 
       {/* Specifications Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 p-4 rounded-xl bg-neutral-900/40 border border-neutral-800/80 text-xs">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 p-4 rounded-xl bg-neutral-900/40 border border-neutral-800/80 text-xs">
         <div className="space-y-1">
           <span className="text-[11px] text-neutral-500 font-medium flex items-center gap-1.5">
             <Calendar className="w-3.5 h-3.5 text-neutral-400" /> Released
@@ -176,7 +176,7 @@ export function GameInfoSection() {
           <p className="font-semibold text-neutral-200">{metadata.deviceSupport}</p>
         </div>
 
-        <div className="space-y-1 col-span-2 sm:col-span-1">
+        <div className="space-y-1 col-span-2 sm:col-span-1 lg:col-span-1">
           <span className="text-[11px] text-neutral-500 font-medium flex items-center gap-1.5">
             <Globe2 className="w-3.5 h-3.5 text-neutral-400" /> Language
           </span>
