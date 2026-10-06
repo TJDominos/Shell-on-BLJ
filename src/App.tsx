@@ -10,6 +10,7 @@ import { GameShell } from './components/shell/GameShell';
 import { PlatformLobby } from './components/shell/PlatformLobby';
 
 import { ConfirmModal } from './components/blackjack/ConfirmModal';
+import { ShellSvgDefs } from './components/shell/ShellSvgSymbols';
 
 function GameLayout() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -122,6 +123,7 @@ function GameLayout() {
       id="game-layout-root"
       className={`w-full ${isEmbedded ? 'h-full min-h-0' : 'h-[100dvh]'} flex flex-col relative overflow-hidden bg-gradient-to-br from-[#1a0f0a] via-[#0d0905] to-[#140b08] text-slate-200 font-sans selection:bg-[#c6a364]/30 selection:text-amber-200`}
     >
+      <ShellSvgDefs />
       <div className="absolute inset-0 pointer-events-none opacity-30 bg-[url('https://www.transparenttextures.com/patterns/black-floral-pattern.png')] mix-blend-overlay z-0"></div>
       
       {/* Luxury Caesars Palace style background elements */}

@@ -4,6 +4,7 @@ import { Star } from 'lucide-react';
 interface StarRatingProps {
   value: number; // 0.5 to 5.0
   onChange?: (val: number) => void;
+  onHoverChange?: (val: number | null) => void;
   interactive?: boolean;
   size?: 'sm' | 'md' | 'lg';
   showScoreLabel?: boolean;
@@ -13,6 +14,7 @@ interface StarRatingProps {
 export function StarRating({
   value,
   onChange,
+  onHoverChange,
   interactive = false,
   size = 'md',
   showScoreLabel = false,
@@ -21,6 +23,11 @@ export function StarRating({
   const [hoverValue, setHoverValue] = useState<number | null>(null);
 
   const displayValue = hoverValue !== null ? hoverValue : value;
+
+  const handleHover = (val: number | null) => {
+    setHoverValue(val);
+    onHoverChange?.(val);
+  };
 
   const sizeClasses = {
     sm: 'w-3.5 h-3.5',
@@ -37,10 +44,10 @@ export function StarRating({
   };
 
   return (
-    <div className={`inline-flex items-center gap-1.5 ${className}`}>
+    <div className={`inline-flex items-center gap-2 select-none ${className}`}>
       <div 
-        className={`flex items-center gap-1 ${interactive ? 'cursor-pointer select-none' : ''}`}
-        onMouseLeave={() => interactive && setHoverValue(null)}
+        className={`flex items-center gap-1 shrink-0 ${interactive ? 'cursor-pointer' : ''}`}
+        onMouseLeave={() => interactive && handleHover(null)}
       >
         {starIndices.map((starIndex) => {
           const fillState = getStarFillState(starIndex, displayValue);
@@ -48,7 +55,7 @@ export function StarRating({
           return (
             <div
               key={starIndex}
-              className="relative group transition-transform active:scale-95"
+              className="relative shrink-0"
             >
               {/* If interactive, render invisible hit zones for left half (starIndex - 0.5) and right half (starIndex) */}
               {interactive && (
@@ -56,15 +63,21 @@ export function StarRating({
                   {/* Left half */}
                   <div
                     className="w-1/2 h-full cursor-pointer"
-                    onMouseEnter={() => setHoverValue(starIndex - 0.5)}
-                    onClick={() => onChange && onChange(starIndex - 0.5)}
+                    onMouseEnter={() => handleHover(starIndex - 0.5)}
+                    onClick={() => {
+                      onChange && onChange(starIndex - 0.5);
+                      handleHover(null);
+                    }}
                     title={`${starIndex - 0.5} Stars`}
                   />
                   {/* Right half */}
                   <div
                     className="w-1/2 h-full cursor-pointer"
-                    onMouseEnter={() => setHoverValue(starIndex)}
-                    onClick={() => onChange && onChange(starIndex)}
+                    onMouseEnter={() => handleHover(starIndex)}
+                    onClick={() => {
+                      onChange && onChange(starIndex);
+                      handleHover(null);
+                    }}
                     title={`${starIndex} Stars`}
                   />
                 </div>
@@ -72,7 +85,7 @@ export function StarRating({
 
               {/* Base empty star */}
               <Star
-                className={`${sizeClasses[size]} text-neutral-600 transition-colors duration-150`}
+                className={`${sizeClasses[size]} text-neutral-600 transition-colors duration-150 shrink-0`}
                 strokeWidth={1.5}
               />
 
@@ -80,7 +93,7 @@ export function StarRating({
               {fillState === 'full' && (
                 <div className="absolute inset-0 pointer-events-none text-amber-400">
                   <Star
-                    className={`${sizeClasses[size]} fill-amber-400 text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.4)]`}
+                    className={`${sizeClasses[size]} fill-amber-400 text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.4)] shrink-0`}
                     strokeWidth={1.5}
                   />
                 </div>
@@ -90,7 +103,7 @@ export function StarRating({
               {fillState === 'half' && (
                 <div className="absolute inset-0 pointer-events-none overflow-hidden w-1/2 text-amber-400">
                   <Star
-                    className={`${sizeClasses[size]} fill-amber-400 text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.4)]`}
+                    className={`${sizeClasses[size]} fill-amber-400 text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.4)] shrink-0`}
                     strokeWidth={1.5}
                   />
                 </div>
@@ -101,7 +114,7 @@ export function StarRating({
       </div>
 
       {showScoreLabel && (
-        <span className="font-bold text-amber-400 font-mono tracking-tight text-sm">
+        <span className="font-bold text-amber-400 font-mono tracking-tight text-sm w-7 min-w-[1.75rem] text-center inline-block tabular-nums shrink-0">
           {displayValue > 0 ? (displayValue.toFixed(1).endsWith('.0') ? displayValue.toFixed(0) : displayValue.toFixed(1)) : '0'}
         </span>
       )}

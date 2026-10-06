@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useGameReviewStore, formatRating } from '../../store/gameReviewStore';
 import { StarRating } from './StarRating';
+import { GameTipButton } from './GameTipButton';
 
 export function GameInfoSection() {
   const {
@@ -95,7 +96,7 @@ export function GameInfoSection() {
 
               <button
                 onClick={() => openReviewModal('manual')}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 hover:text-amber-200 text-xs font-semibold transition-all active:scale-95"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#5F40A1]/15 hover:bg-[#5F40A1]/25 border border-[#5F40A1]/40 text-[#D3C3ED] hover:text-white text-xs font-semibold transition-all active:scale-95 cursor-pointer"
               >
                 <MessageSquarePlus className="w-3.5 h-3.5" />
                 <span>Rate & Review</span>
@@ -128,18 +129,21 @@ export function GameInfoSection() {
           </div>
         </div>
 
-        {/* Share Button (uses game cover image as thumbnail) */}
-        <button
-          onClick={() => setShowShareModal(true)}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 text-xs font-semibold text-neutral-200 hover:text-white transition-all shadow active:scale-95 shrink-0 self-start sm:self-auto"
-          title="Share this game"
-        >
-          <div className="w-4 h-4 rounded overflow-hidden relative shrink-0">
-            <img src={metadata.coverImage} alt="Thumbnail" className="w-full h-full object-cover" />
-          </div>
-          <Share2 className="w-3.5 h-3.5 text-amber-400" />
-          <span>Share Game</span>
-        </button>
+        {/* Action Buttons: Support / Tip Creator + Share Game */}
+        <div className="flex items-center gap-2.5 shrink-0 self-start sm:self-auto flex-wrap">
+          {/* Standalone Support / Tip Creator Button */}
+          <GameTipButton variant="info-section" />
+
+          {/* Share Button */}
+          <button
+            onClick={() => setShowShareModal(true)}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 text-xs font-semibold text-neutral-200 hover:text-white transition-all shadow active:scale-95 shrink-0 cursor-pointer"
+            title="Share this game"
+          >
+            <Share2 className="w-3.5 h-3.5 text-[#B49CDF]" />
+            <span>Share Game</span>
+          </button>
+        </div>
       </div>
 
       {/* Specifications Grid */}
@@ -240,7 +244,7 @@ export function GameInfoSection() {
 
           <button
             onClick={() => openReviewModal('manual')}
-            className="px-4 py-2 rounded-xl bg-amber-500 text-neutral-950 hover:bg-amber-400 font-bold text-xs shadow-md transition-all active:scale-95"
+            className="px-4 py-2 rounded-xl bg-[#5F40A1] hover:bg-[#4C3380] text-white font-semibold text-xs shadow-md transition-all active:scale-95 cursor-pointer"
           >
             + Write a Review
           </button>
@@ -319,11 +323,11 @@ export function GameInfoSection() {
 
       {/* Share Modal Dialog with Game Cover Thumbnail */}
       {showShareModal && (
-        <div className="fixed inset-0 z-[240] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[240] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#141722] border border-neutral-700 rounded-2xl w-full max-w-sm p-5 text-white shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
               <h3 className="text-sm font-bold flex items-center gap-2">
-                <Share2 className="w-4 h-4 text-amber-400" />
+                <Share2 className="w-4 h-4 text-[#B49CDF]" />
                 <span>Share {metadata.name}</span>
               </h3>
               <button
@@ -365,7 +369,7 @@ export function GameInfoSection() {
                 />
                 <button
                   onClick={handleCopyLink}
-                  className="px-3 py-1 rounded-lg bg-amber-500 text-neutral-950 font-bold text-xs shrink-0 flex items-center gap-1"
+                  className="px-3 py-1 rounded-lg bg-[#5F40A1] hover:bg-[#4C3380] text-white font-semibold text-xs shrink-0 flex items-center gap-1 transition-colors cursor-pointer"
                 >
                   {copiedLink ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                   <span>{copiedLink ? 'Copied' : 'Copy'}</span>

@@ -18,6 +18,7 @@ import {
   RotateCcw
 } from 'lucide-react';
 import { useGameReviewStore, GameControlItem } from '../../store/gameReviewStore';
+import { GameTipButton } from './GameTipButton';
 
 interface GameControlBarProps {
   isMuted: boolean;
@@ -182,23 +183,23 @@ export function GameControlBar({
           </button>
         )}
 
-        {/* 3. Review Rate */}
+        {/* 3. Review Rate (Canonical Golden Star) */}
         <button
           onClick={() => openReviewModal('manual')}
           className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 hover:text-amber-200 text-xs font-bold transition-all shadow-sm active:scale-95 shrink-0 cursor-pointer"
           title="Rate this game & Write Review"
           aria-label="Game Rating"
         >
-          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 shrink-0" />
           <span className="font-mono text-white text-xs">{formattedScore}</span>
           <span className="text-[11px] font-medium text-amber-200/90 ml-0.5">Rate</span>
         </button>
       </div>
 
-      {/* Right Section: Action Controls in exact requested order */}
-      {/* 4. Sound (icon only) -> 5. Like Icon -> 6. Progress -> 7. Game Control -> 8. Full Screen */}
+      {/* Right Section: Action Controls */}
+      {/* Sound -> Like -> Progress -> Game Control -> Full Screen -> Tip Game */}
       <div className="flex items-center justify-between md:justify-end gap-1.5 sm:gap-2 shrink-0 flex-wrap">
-        {/* 4. Sound (keep icon only, switch to muted icon on click) */}
+        {/* Sound (keep icon only, switch to muted icon on click) */}
         <button
           onClick={onToggleMute}
           className="p-2 sm:p-2.5 rounded-xl hover:bg-neutral-800 bg-neutral-900/60 md:bg-transparent border border-neutral-800 md:border-transparent text-neutral-300 hover:text-white transition-all cursor-pointer active:scale-95 shrink-0"
@@ -212,7 +213,7 @@ export function GameControlBar({
           )}
         </button>
 
-        {/* 5. Like / Heat Icon (Heart Icon + Count, interactive like toggle) */}
+        {/* Like / Heat Icon (Heart Icon + Count, interactive like toggle) */}
         <button
           onClick={handleToggleLike}
           className={`flex items-center gap-1.5 px-2.5 py-1.5 sm:py-2 rounded-xl border transition-all cursor-pointer active:scale-95 shrink-0 ${
@@ -410,7 +411,7 @@ export function GameControlBar({
           )}
         </div>
 
-        {/* 8. Full Screen */}
+        {/* Full Screen */}
         <button
           onClick={onToggleFullscreen}
           className="p-2 sm:p-2.5 rounded-xl hover:bg-neutral-800 bg-neutral-900/60 md:bg-transparent border border-neutral-800 md:border-transparent text-neutral-300 hover:text-white transition-all cursor-pointer active:scale-95 shrink-0"
@@ -419,6 +420,9 @@ export function GameControlBar({
         >
           {isFullscreen ? <Minimize className="w-4 h-4 shrink-0" /> : <Maximize className="w-4 h-4 shrink-0" />}
         </button>
+
+        {/* Tip Game: Positioned right after Full Screen button */}
+        <GameTipButton variant="control-bar" />
       </div>
     </div>
   );

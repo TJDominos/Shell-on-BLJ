@@ -15,6 +15,7 @@ import { GameInfoSection } from './GameInfoSection';
 import { GameReviewModal } from './GameReviewModal';
 import { CreatorProfileModal } from './CreatorProfileModal';
 import { PlatformSidebar } from './PlatformSidebar';
+import { AgeVerificationGate } from './AgeVerificationGate';
 
 export function GameShell() {
   const { id } = useParams<{ id: string }>();
@@ -46,13 +47,32 @@ export function GameShell() {
   const gameCardRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Play time accumulation timer (1 tick per second)
+  // Age confirmation gate status
+  const normalizedRating = (metadata.ageRating || '').toUpperCase();
+  const isNsfw = normalizedRating.includes('NSFW');
+  const is18Plus = normalizedRating.includes('18+') || normalizedRating.includes('MATURE');
+  const requiresGate = isNsfw || is18Plus;
+  const storageKey = isNsfw 
+    ? `randseed_gate_confirmed_nsfw_${metadata.id}` 
+    : `randseed_gate_confirmed_18_${metadata.id}`;
+
+  const [isAgeConfirmed, setIsAgeConfirmed] = useState<boolean>(() => {
+    if (!requiresGate) return true;
+    try {
+      return localStorage.getItem(storageKey) === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  // Play time accumulation timer (only starts ticking AFTER age verification is passed)
   useEffect(() => {
+    if (!isAgeConfirmed) return;
     const timer = setInterval(() => {
       incrementPlayTime();
     }, 1000);
     return () => clearInterval(timer);
-  }, [incrementPlayTime]);
+  }, [incrementPlayTime, isAgeConfirmed]);
 
   // Fullscreen toggle on game container
   const toggleFullscreen = () => {
@@ -248,6 +268,14 @@ export function GameShell() {
                 scrolling="no"
                 style={{ overflow: 'hidden' }}
                 allow="autoplay; fullscreen"
+              />
+
+              {/* Age and Risk Verification Gate for 18+ and NSFW games */}
+              <AgeVerificationGate
+                ageRating={metadata.ageRating}
+                gameId={metadata.id}
+                onConfirm={() => setIsAgeConfirmed(true)}
+                onExit={() => navigate('/')}
               />
             </div>
 

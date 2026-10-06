@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, CheckCircle2, Gamepad2, Users, Play, ExternalLink, Share2, Sparkles } from 'lucide-react';
 import { useGameReviewStore } from '../../store/gameReviewStore';
+import { GameTipButton } from './GameTipButton';
 
 export function CreatorProfileModal() {
   const { isCreatorProfileOpen, setCreatorProfileOpen, metadata } = useGameReviewStore();
@@ -18,7 +19,7 @@ export function CreatorProfileModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-[230] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[230] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
       <div 
         className="bg-[#141722] border border-neutral-700/80 rounded-2xl w-full max-w-md shadow-[0_25px_60px_rgba(0,0,0,0.85)] flex flex-col overflow-hidden text-neutral-100"
         role="dialog"
@@ -53,13 +54,15 @@ export function CreatorProfileModal() {
               )}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <GameTipButton variant="info-section" />
+
               <button
                 onClick={handleShare}
                 className="p-2 rounded-xl border border-neutral-700 hover:bg-neutral-800 text-neutral-300 hover:text-white transition-colors text-xs flex items-center gap-1.5"
                 title="Share Creator"
               >
-                <Share2 className="w-4 h-4" />
+                <Share2 className="w-4 h-4 text-[#B49CDF]" />
                 <span>{copied ? 'Copied' : 'Share'}</span>
               </button>
 

@@ -26,6 +26,14 @@ export interface CreatorProfile {
   joinedDate: string;
 }
 
+export interface TipRecord {
+  id: string;
+  amount: number;
+  currency: 'Gcoin' | 'Bonus';
+  timestamp: number;
+  userName?: string;
+}
+
 export interface GameControlItem {
   key: string;
   action: string;
@@ -203,6 +211,13 @@ interface GameReviewStoreState {
   isCreatorProfileOpen: boolean;
   setCreatorProfileOpen: (open: boolean) => void;
 
+  // Tip State (Shell level quick tipping)
+  tipsCount: number;
+  totalTipsGcoin: number;
+  totalTipsBonus: number;
+  recentTips: TipRecord[];
+  addTip: (amount: number, currency: 'Gcoin' | 'Bonus', userName?: string) => void;
+
   // Actions
   openReviewModal: (reason?: 'time-5min' | 'exit-1min' | 'manual', onExit?: () => void) => void;
   closeReviewModal: () => void;
@@ -212,6 +227,7 @@ interface GameReviewStoreState {
   getAverageRating: () => number;
   getFormattedRating: () => string;
   updateControls: (controls: GameControlItem[]) => void;
+  updateAgeRating: (ageRating: string) => void;
 }
 
 function loadPersistedReviews(): GameReview[] {
@@ -257,6 +273,30 @@ export const useGameReviewStore = create<GameReviewStoreState>((set, get) => ({
 
   isCreatorProfileOpen: false,
   setCreatorProfileOpen: (open) => set({ isCreatorProfileOpen: open }),
+
+  tipsCount: 384,
+  totalTipsGcoin: 1425000,
+  totalTipsBonus: 3260,
+  recentTips: [
+    { id: 'tip_1', amount: 500, currency: 'Gcoin', timestamp: Date.now() - 3600000, userName: 'Elena R.' },
+    { id: 'tip_2', amount: 10, currency: 'Bonus', timestamp: Date.now() - 7200000, userName: 'Guest #9182' },
+  ],
+
+  addTip: (amount, currency, userName = 'You') => {
+    const newTip: TipRecord = {
+      id: `tip_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+      amount,
+      currency,
+      timestamp: Date.now(),
+      userName
+    };
+    set((state) => ({
+      tipsCount: state.tipsCount + 1,
+      totalTipsGcoin: currency === 'Gcoin' ? state.totalTipsGcoin + amount : state.totalTipsGcoin,
+      totalTipsBonus: currency === 'Bonus' ? state.totalTipsBonus + amount : state.totalTipsBonus,
+      recentTips: [newTip, ...state.recentTips.slice(0, 19)]
+    }));
+  },
 
   incrementPlayTime: () => {
     const nextTime = get().playTimeSeconds + 1;
@@ -396,6 +436,15 @@ export const useGameReviewStore = create<GameReviewStoreState>((set, get) => ({
       metadata: {
         ...state.metadata,
         controls
+      }
+    }));
+  },
+
+  updateAgeRating: (ageRating) => {
+    set((state) => ({
+      metadata: {
+        ...state.metadata,
+        ageRating
       }
     }));
   }
